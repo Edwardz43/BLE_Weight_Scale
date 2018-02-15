@@ -13,7 +13,7 @@ import java.util.List;
  * Created by EdLo on 2018/2/2.
  */
 
-public class ScaleRecordDAO {
+public class ScaleRecordDAO extends DAO{
     // 表格名稱
     public static final String TABLE_NAME = "scale_record";
 

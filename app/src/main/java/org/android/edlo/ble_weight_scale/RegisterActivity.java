@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import org.android.edlo.ble_weight_scale.java_class.Data.UserDAO;
 import org.android.edlo.ble_weight_scale.java_class.Data.UserItem;
 import org.android.edlo.ble_weight_scale.java_class.Resource.ResourceMapping;
 
@@ -27,7 +28,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     private boolean isMale, isImperial;
     private Button male, female, imperial, metric;
     private String email, password, confirmPassword, firstname, lastName,
-                    Birthdate, gender, height_in, height_ft, height_cm, weight_lb, weight_kg;
+                    birthdate, gender, height_in, height_ft, height_cm, weight_lb, weight_kg;
     private Integer unit_type, activity_level;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,14 +108,42 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
 
     public void register(View view){
         this.email = editableToString(findViewById(R.id.user_email));
+        this.firstname = editableToString(findViewById(R.id.user_firstName));
+        this.lastName = editableToString(findViewById(R.id.user_lastName));
+        this.password = editableToString(findViewById(R.id.user_password));
+        this.confirmPassword = editableToString(findViewById(R.id.confirm_password));
+        this.birthdate = editableToString(findViewById(R.id.user_birthDate));
+        this.height_in = editableToString(findViewById(R.id.height_in));
+        this.height_ft = editableToString(findViewById(R.id.height_ft));
+        this.height_cm = editableToString(findViewById(R.id.height_cm));
+        this.weight_lb = editableToString(findViewById(R.id.weight_lb));
+        this.weight_kg = editableToString(findViewById(R.id.weight_kg));
+        this.height_cm = editableToString(findViewById(R.id.height_cm));
+
+        UserDAO userDAO = new UserDAO(getApplicationContext());
         UserItem userItem = new UserItem();
 
-
+        userItem.setEmail(this.email);
+        userItem.setPassword(this.password);
+        userItem.setFisrtname(this.firstname);
+        userItem.setLastname(this.lastName);
+        userItem.setBirthdate(this.birthdate);
+        userItem.setGender(this.gender);
+        userItem.setHeight_ft(this.height_ft);
+        userItem.setHeight_in(this.height_in);
+        userItem.setHeight_cm(this.height_cm);
+        userItem.setWeight_lb(this.weight_lb);
+        userItem.setWeight_kg(this.weight_kg);
+        userItem.setUnit_type(this.unit_type);
+        userItem.setActivity_level(this.activity_level);
+        userDAO.insert(userItem);
 
         Intent it = new Intent(this, MainActivity.class);
+        it.putExtra("user", userItem);
         startActivity(it);
     }
 
+    //下拉式選單
     private void init_spinner(){
         Spinner spinner = findViewById(R.id.activity_level);
         // Create an ArrayAdapter using the string array and a default spinner layout
@@ -131,6 +160,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long l) {
         Log.i("ble_weight_scale", "spinner select item : " + position);
+        this.activity_level = position - 1;
         String selectedItemText = (String) parent.getItemAtPosition(position);
         // If user change the default selection
         // First item is disable and it is used for hint

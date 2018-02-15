@@ -55,7 +55,7 @@ public class UserDAO {
     private SQLiteDatabase db;
 
     public UserDAO(Context context) {
-        db = MyDBHelper.getDatabase(context);
+        db = UserDBHelper.getDatabase(context);
     }
 
     // 關閉資料庫，一般的應用都不需要修改

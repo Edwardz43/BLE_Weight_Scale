@@ -2,11 +2,13 @@ package org.android.edlo.ble_weight_scale.java_class.Data;
 
 import android.content.Intent;
 
+import java.io.Serializable;
+
 /**
  * Created by EdLo on 2018/1/26.
  */
 
-public class UserItem {
+public class UserItem implements Serializable{
     private String email, password, fisrtname, lastname,
             birthdate, height_in, height_ft, height_cm, weight_lb, weight_kg, gender;
     private Integer unit_type, activity_level;

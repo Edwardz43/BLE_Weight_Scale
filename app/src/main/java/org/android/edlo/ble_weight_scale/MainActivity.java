@@ -126,15 +126,9 @@ public class MainActivity extends AppCompatActivity {
         // If the access token is available already assign it.
         accessToken = AccessToken.getCurrentAccessToken();
 
-        //init custom back
-        timerExit = new Timer();
-        task = new TimerTask() {
-            @Override
-            public void run() {
-                isExit = false;
-                hasTask = true;
-            }
-        };
+        //init
+        userDAO = new UserDAO(getApplicationContext());
+        init();
     }
 
     @Override
@@ -149,21 +143,49 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void init(){
+        //edit_text init
+        UserItem userItem = (UserItem) getIntent().getSerializableExtra("user");
+        if(userItem != null){
+            EditText login_email = (EditText)findViewById(R.id.login_email);
+            EditText login_password = (EditText)findViewById(R.id.login_password);
+            login_email.setText(userItem.getEmail());
+            login_password.setText(userItem.getPassword());
+        }
+
+        //init exit app
+        timerExit = new Timer();
+        task = new TimerTask() {
+            @Override
+            public void run() {
+                isExit = false;
+                hasTask = true;
+            }
+        };
+    }
+
     //登入
     public void signIn(View view){
         EditText login_email = (EditText) findViewById(R.id.login_email);
         EditText login_password = (EditText) findViewById(R.id.login_password);
         String email = login_email.getText().toString();
         String password = login_password.getText().toString();
-        boolean email_confirm , password_confirm;
-        //confirm user
-        if(confirm_user(email, password)){
-            Log.i("ble_weight_scale", "Login Email : " + email);
-            Intent signInIntent = new Intent(this, LastWeightActivity.class);
-            startActivity(signInIntent);
-        }else{
-            Toast.makeText(this, "Incorrect Email or Password !", Toast.LENGTH_SHORT).show();
+        //confirm email & password
+        if(email.length() > 0 && password.length() > 0){
+            //confirm user
+            if(confirm_user(email, password)){
+                Log.i("ble_weight_scale", "Login Email : " + email);
+                Intent signInIntent = new Intent(this, LastWeightActivity.class);
+                startActivity(signInIntent);
+            }else{
+                Toast.makeText(this, "Incorrect Email or Password !", Toast.LENGTH_SHORT).show();
+            }
+        }else if(email.length() == 0){
+            Toast.makeText(this, "Please Enter Email !", Toast.LENGTH_SHORT).show();
+        }else if(email.length() > 0 && password.length() == 0){
+            Toast.makeText(this, "Please Enter Password !", Toast.LENGTH_SHORT).show();
         }
+
     }
 
     //註冊
@@ -226,11 +248,10 @@ public class MainActivity extends AppCompatActivity {
 
     //驗證User
     private boolean confirm_user(String email, String password){
-        userDAO = new UserDAO(getApplicationContext());
         UserItem item = userDAO.get(email);
-        Log.d("USER_TEST",item.toString());
         if(item != null){
             String user_password = item.getPassword();
+            Log.d("USER_TEST",item.toString());
             if(user_password == password){
                 return true;
             }else {
