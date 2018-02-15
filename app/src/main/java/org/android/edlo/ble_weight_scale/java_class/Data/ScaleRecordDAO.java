@@ -39,7 +39,6 @@ public class ScaleRecordDAO {
     // 資料庫物件
     private SQLiteDatabase db;
 
-    // 建構子，一般的應用都不需要修改
     public ScaleRecordDAO(Context context) {
         db = MyDBHelper.getDatabase(context);
     }

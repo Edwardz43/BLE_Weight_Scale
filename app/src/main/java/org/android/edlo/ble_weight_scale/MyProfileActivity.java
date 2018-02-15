@@ -15,6 +15,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class MyProfileActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private boolean isMale, isImperial;
@@ -90,7 +93,7 @@ public class MyProfileActivity extends AppCompatActivity implements AdapterView.
     }
 
     public void back(View view){
-        Intent it = new Intent(this, MainActivity.class);
+        Intent it = new Intent(this, LastWeightActivity.class);
         startActivity(it);
     }
 
@@ -162,5 +165,14 @@ public class MyProfileActivity extends AppCompatActivity implements AdapterView.
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    //驗證email by regex
+    private static final Pattern VALID_EMAIL_ADDRESS_REGEX =
+            Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+
+    private static boolean validate(String emailStr) {
+        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX .matcher(emailStr);
+        return matcher.find();
     }
 }

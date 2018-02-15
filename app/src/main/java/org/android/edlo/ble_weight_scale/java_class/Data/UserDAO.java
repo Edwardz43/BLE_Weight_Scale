@@ -20,27 +20,40 @@ public class UserDAO {
     public static final String KEY_ID = "uid";
 
     // 其它表格欄位名稱
-    public static final String DATETIME_COLUMN = "datetime";
-    public static final String DATE_COLUMN = "date";
-    public static final String TIME_COLUMN = "time";
-    public static final String WEIGHT_COLUMN = "weight";
-    public static final String USER_ID = "user_id";
-    public static final String IS_LOGIN = "is_login";
+    public static final String EMAIL = "email";
+    public static final String PASSWORD = "password";
+    public static final String FIRST_NAME = "first_name";
+    public static final String LAST_NAME = "last_name";
+    public static final String BIRTH_DATE = "birth_date";
+    public static final String HEIGHT_IN = "height_in";
+    public static final String HEIGHT_FT = "height_ft";
+    public static final String HEIGHT_CM = "height_cm";
+    public static final String WEIGHT_LB = "weight_lb";
+    public static final String WEIGHT_KG = "height_kg";
+    public static final String GENDER = "gender";
+    public static final String UNIT_TYPE = "unit_type";
+    public static final String ACTIVITY_LEVEL = "activity_level";
 
     // 建立表格
     public static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + " (" +
                     KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    DATETIME_COLUMN + " INTEGER NOT NULL, " +
-                    DATE_COLUMN + " TEXT NOT NULL, " +
-                    TIME_COLUMN + " TEXT NOT NULL, " +
-                    WEIGHT_COLUMN + " REAL NOT NULL, " +
-                    USER_ID + " INTEGER NOT NULL, "+
-                    IS_LOGIN + " INTEGER NOT NULL)";
+                    EMAIL + " TEXT NOT NULL, " +
+                    PASSWORD + " TEXT NOT NULL, " +
+                    FIRST_NAME + " TEXT NOT NULL, " +
+                    LAST_NAME + " TEXT NOT NULL, " +
+                    BIRTH_DATE + " TEXT NOT NULL, "+
+                    HEIGHT_IN + " REAL , " +
+                    HEIGHT_FT + " INTEGER , " +
+                    HEIGHT_CM + " REAL , " +
+                    WEIGHT_LB + " REAL , " +
+                    WEIGHT_KG + " REAL , "+
+                    GENDER + " TEXT NOT NULL, "+
+                    UNIT_TYPE + " INTEGER NOT NULL, "+
+                    ACTIVITY_LEVEL + " INTEGER NOT NULL)";
     // 資料庫物件
     private SQLiteDatabase db;
 
-    // 建構子，一般的應用都不需要修改
     public UserDAO(Context context) {
         db = MyDBHelper.getDatabase(context);
     }
@@ -51,16 +64,24 @@ public class UserDAO {
     }
 
     // 新增參數指定的物件
-    public Item insert(Item item) {
+    public UserItem insert(UserItem item) {
         // 建立準備新增資料的ContentValues物件
         ContentValues cv = new ContentValues();
 
-        cv.put(DATETIME_COLUMN, item.getLocaleDatetime());
-        cv.put(DATE_COLUMN, item.getLocaleDate());
-        cv.put(TIME_COLUMN, item.getLocaleTime());
-        cv.put(WEIGHT_COLUMN, item.getWeight());
-        cv.put(USER_ID, item.getUserId());
+        cv.put(EMAIL, item.getEmail());
+        cv.put(PASSWORD, item.getPassword());
+        cv.put(FIRST_NAME, item.getFisrtname());
+        cv.put(LAST_NAME, item.getLastname());
+        cv.put(BIRTH_DATE, item.getBirthdate());
+        cv.put(ACTIVITY_LEVEL, item.getActivity_level());
+        cv.put(GENDER, item.getGender());
+        cv.put(UNIT_TYPE, item.getUnit_type());
 
+        if(item.getHeight_in()!= null){cv.put(HEIGHT_IN, item.getHeight_in());}
+        if(item.getHeight_ft()!= null){cv.put(HEIGHT_IN, item.getHeight_ft());}
+        if(item.getHeight_cm()!= null){cv.put(HEIGHT_IN, item.getHeight_cm());}
+        if(item.getWeight_lb()!= null){cv.put(HEIGHT_IN, item.getWeight_lb());}
+        if(item.getWeight_kg()!= null){cv.put(HEIGHT_IN, item.getWeight_kg());}
 
         // 新增一筆資料並取得編號
         // 第一個參數是表格名稱
@@ -75,16 +96,23 @@ public class UserDAO {
     }
 
     // 修改參數指定的物件
-    public boolean update(Item item) {
+    public boolean update(UserItem item) {
         // 建立準備修改資料的ContentValues物件
         ContentValues cv = new ContentValues();
 
         // 加入ContentValues物件包裝的修改資料
-        cv.put(DATETIME_COLUMN, item.getLocaleDatetime());
-        cv.put(DATE_COLUMN, item.getLocaleDate());
-        cv.put(TIME_COLUMN, item.getLocaleTime());
-        cv.put(WEIGHT_COLUMN, item.getWeight());
-        cv.put(USER_ID, item.getUserId());
+        cv.put(EMAIL, item.getEmail());
+        cv.put(PASSWORD, item.getPassword());
+        cv.put(FIRST_NAME, item.getFisrtname());
+        cv.put(LAST_NAME, item.getLastname());
+        cv.put(BIRTH_DATE, item.getBirthdate());
+        cv.put(ACTIVITY_LEVEL, item.getActivity_level());
+
+        if(item.getHeight_in()!= null){cv.put(HEIGHT_IN, item.getHeight_in());}
+        if(item.getHeight_ft()!= null){cv.put(HEIGHT_IN, item.getHeight_ft());}
+        if(item.getHeight_cm()!= null){cv.put(HEIGHT_IN, item.getHeight_cm());}
+        if(item.getWeight_lb()!= null){cv.put(HEIGHT_IN, item.getWeight_lb());}
+        if(item.getWeight_kg()!= null){cv.put(HEIGHT_IN, item.getWeight_kg());}
 
         // 設定修改資料的條件為編號
         // 格式為「欄位名稱＝資料」
@@ -103,38 +131,24 @@ public class UserDAO {
     }
 
     // 讀取所有資料
-    public List<Item> getAll() {
-        List<Item> result = new ArrayList<>();
+    public List<UserItem> getAll() {
+        List<UserItem> result = new ArrayList<>();
         Cursor cursor = db.query(
                 TABLE_NAME, null, null, null, null, null, null, null);
 
         while (cursor.moveToNext()) {
             result.add(getRecord(cursor));
         }
-
         cursor.close();
         return result;
     }
 
-    // 讀取最新一筆資料(Last Weught)
-    public Item getLastWeight() {
-        Item result = new Item();
-        Cursor cursor = db.query(
-                TABLE_NAME, null, null, null, null, null, null, null);
-        while (cursor.moveToLast()) {
-            result = getRecord(cursor);
-        }
-
-        cursor.close();
-        return result;
-    }
-
-    // 取得指定編號的資料物件
-    public Item get(long id) {
+    // 取得指定編號的User
+    public UserItem get(String email) {
         // 準備回傳結果用的物件
-        Item item = null;
+        UserItem item = null;
         // 使用編號為查詢條件
-        String where = KEY_ID + "=" + id;
+        String where = EMAIL + "=" + email;
         // 執行查詢
         Cursor result = db.query(
                 TABLE_NAME, null, where, null, null, null, null, null);
@@ -152,14 +166,24 @@ public class UserDAO {
     }
 
     // 把Cursor目前的資料包裝為物件
-    public Item getRecord(Cursor cursor) {
+    public UserItem getRecord(Cursor cursor) {
         // 準備回傳結果用的物件
-        Item result = new Item();
+        UserItem result = new UserItem();
 
         result.setId(cursor.getLong(0));
-        result.setDateTime(cursor.getLong(1));
-        result.setWeight(cursor.getDouble(2));
-        result.setUserId(cursor.getLong(3));
+        result.setEmail(cursor.getString(1));
+        result.setPassword(cursor.getString(2));
+        result.setFisrtname(cursor.getString(3));
+        result.setLastname(cursor.getString(4));
+        result.setBirthdate(cursor.getString(5));
+        result.setHeight_in(cursor.getString(6));
+        result.setHeight_ft(cursor.getString(7));
+        result.setHeight_cm(cursor.getString(8));
+        result.setWeight_lb(cursor.getString(9));
+        result.setWeight_kg(cursor.getString(10));
+        result.setGender(cursor.getString(11));
+        result.setUnit_type(cursor.getInt(12));
+        result.setActivity_level(cursor.getInt(13));
 
         // 回傳結果
         return result;

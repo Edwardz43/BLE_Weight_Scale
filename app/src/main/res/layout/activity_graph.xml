@@ -42,33 +42,49 @@
         android:orientation="horizontal"
         >
         <Button
+            android:id="@+id/btn_day"
+            android:onClick="show_day"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:textAllCaps="false"
             android:text="Day"
+            android:textColor="#fff"
+            android:background="@drawable/border_lightgreen_buttons"
             />
         <Button
+            android:id="@+id/btn_week"
+            android:onClick="show_week"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:textAllCaps="false"
             android:text="Week"
+            android:textColor="#fff"
+            android:background="@drawable/border_pinkblue_buttons"
             />
         <Button
+            android:id="@+id/btn_month"
+            android:onClick="show_month"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:textAllCaps="false"
             android:text="Month"
+            android:textColor="#fff"
+            android:background="@drawable/border_pinkblue_buttons"
             />
         <Button
+            android:id="@+id/btn_year"
+            android:onClick="show_year"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="20dp"
             android:textAllCaps="false"
             android:text="Year"
+            android:textColor="#fff"
+            android:background="@drawable/border_pinkblue_buttons"
             />
     </LinearLayout>
     <RelativeLayout
@@ -77,11 +93,14 @@
         android:layout_weight="0.2"
         >
         <Button
+            android:onClick="back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAllCaps="false"
             android:text="Back"
             android:ems="10"
+            android:background="@drawable/border_deepblue_buttons"
+            android:textColor="#fff"
             android:layout_centerInParent="true"
             android:layout_marginBottom="20dp"
             />

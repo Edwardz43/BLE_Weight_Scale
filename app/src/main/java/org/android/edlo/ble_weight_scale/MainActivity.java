@@ -23,12 +23,15 @@ import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 
+import org.android.edlo.ble_weight_scale.java_class.Data.UserDAO;
 import org.android.edlo.ble_weight_scale.java_class.Data.UserItem;
 import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
     private CallbackManager callbackManager;
@@ -40,15 +43,19 @@ public class MainActivity extends AppCompatActivity {
     private static Boolean hasTask = false;
     private Timer timerExit;
     private TimerTask task;
+    protected UserDAO userDAO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         FacebookSdk.sdkInitialize(getApplicationContext());
         super.onCreate(savedInstanceState);
-        getSupportActionBar().hide(); //隱藏標題
-        //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN); //隱藏狀態
+        //隱藏標題
+        getSupportActionBar().hide();
+        //隱藏狀態
+        //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
+        //FB登入
         callbackManager = CallbackManager.Factory.create();
 
         fbLoginButton = (Button) findViewById(R.id.login_button);
@@ -119,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         // If the access token is available already assign it.
         accessToken = AccessToken.getCurrentAccessToken();
 
+        //init custom back
         timerExit = new Timer();
         task = new TimerTask() {
             @Override
@@ -141,47 +149,50 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //登入
     public void signIn(View view){
         EditText login_email = (EditText) findViewById(R.id.login_email);
         EditText login_password = (EditText) findViewById(R.id.login_password);
         String email = login_email.getText().toString();
         String password = login_password.getText().toString();
-        //confirm email
-//        if(email != null && email.length() > 0){
-//            Log.i("ble_weight_scale", "OK");
-//        }else {
-//            Toast.makeText(this, "Email is Invalid !", Toast.LENGTH_SHORT).show();
-//            Log.i("ble_weight_scale", "NO");
-//        }
-
-        Log.i("ble_weight_scale", "Login Email : " + email);
-        Intent signInIntent = new Intent(this, LastWeightActivity.class);
-        startActivity(signInIntent);
+        boolean email_confirm , password_confirm;
+        //confirm user
+        if(confirm_user(email, password)){
+            Log.i("ble_weight_scale", "Login Email : " + email);
+            Intent signInIntent = new Intent(this, LastWeightActivity.class);
+            startActivity(signInIntent);
+        }else{
+            Toast.makeText(this, "Incorrect Email or Password !", Toast.LENGTH_SHORT).show();
+        }
     }
 
+    //註冊
     public void register(View view){
         Intent registerIntent = new Intent(this, RegisterActivity.class);
         startActivity(registerIntent);
     }
 
+    //記住我
     public void rememberMe(View view){
         CheckBox rememberCheckBox = (CheckBox) view;
         boolean checked = rememberCheckBox.isChecked();
         Log.i("BLE_Weight_Scale", "IsChecked : " + checked);
     }
 
-    public void test(View view){
+    //fb登入
+    public void fb_login(View view){
         LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile"));
         Log.i("ble_weight_scale", "ok");
     }
 
     @Override
     public void onDestroy() {
-        Log.i("ble_weight_scale", "Destroy");
+        Log.d("onDestroy", "Destroy");
         super.onDestroy();
         accessTokenTracker.stopTracking();
     }
 
+    //離開app
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         // 判斷是否按下Back
@@ -189,23 +200,44 @@ public class MainActivity extends AppCompatActivity {
             // 是否要退出
             if(isExit == false ) {
                 isExit = true;
-
+                //Log.d("Exit_app", "Stay");
                 Toast.makeText(this, "Press Back again to exit", Toast.LENGTH_SHORT).show();
                 if(!hasTask) {
                     this.timerExit.schedule(task, 2000);
                 }
             } else {
+                //Log.d("Exit_app", "Leave");
                 accessTokenTracker.stopTracking();
-                finish();
-                System.exit(0);
+                Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+                homeIntent.addCategory( Intent.CATEGORY_HOME );
+                homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(homeIntent);
             }
         }
         return false;
     }
 
+    //忘記密碼
     public void forgot_password(View view){
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse("http://mycloudfitness.com/forgetpassword/"));
         startActivity(intent);
+    }
+
+    //驗證User
+    private boolean confirm_user(String email, String password){
+        userDAO = new UserDAO(getApplicationContext());
+        UserItem item = userDAO.get(email);
+        Log.d("USER_TEST",item.toString());
+        if(item != null){
+            String user_password = item.getPassword();
+            if(user_password == password){
+                return true;
+            }else {
+                return false;
+            }
+        }else {
+            return false;
+        }
     }
 }

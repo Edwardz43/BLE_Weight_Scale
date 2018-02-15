@@ -8,9 +8,25 @@ import android.content.Intent;
 
 public class UserItem {
     private String email, password, fisrtname, lastname,
-            birthdate, height_in, height_ft, height_cm, weight_lb, weight_kg;
-    private Integer activity_level;
+            birthdate, height_in, height_ft, height_cm, weight_lb, weight_kg, gender;
+    private Integer unit_type, activity_level;
     private Long id;
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public Integer getUnit_type() {
+        return unit_type;
+    }
+
+    public void setUnit_type(Integer unit_type) {
+        this.unit_type = unit_type;
+    }
 
     public UserItem(){}
 
@@ -22,7 +38,7 @@ public class UserItem {
     }
 
     public void setEmail(String email) {
-        email = email;
+        this.email = email;
     }
 
     public Long getId() {return id;}
