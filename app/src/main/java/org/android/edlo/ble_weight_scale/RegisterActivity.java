@@ -1,13 +1,9 @@
 package org.android.edlo.ble_weight_scale;
 
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Editable;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -17,9 +13,10 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import org.android.edlo.ble_weight_scale.java_class.Data.UserDAO;
 import org.android.edlo.ble_weight_scale.java_class.Data.UserItem;
-import org.android.edlo.ble_weight_scale.java_class.Resource.ResourceMapping;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -73,13 +70,13 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
 
     public void setImperialUnit(View view){
         isImperial = true;
-        this.unit_type = new ResourceMapping().IMPERIAL;
+        this.unit_type = R.integer.IMPERIAL;
         setUnit();
     }
 
     public void setMetricUnit(View view){
         isImperial = false;
-        this.unit_type = new ResourceMapping().METRIC;
+        this.unit_type = R.integer.METRIC;
         setUnit();
     }
 
@@ -108,14 +105,24 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
 
     public void register(View view){
         this.email = editableToString(findViewById(R.id.user_email));
+        Log.i("DBTest", "email : " + email);
         this.firstname = editableToString(findViewById(R.id.user_firstName));
         this.lastName = editableToString(findViewById(R.id.user_lastName));
         this.password = editableToString(findViewById(R.id.user_password));
         this.confirmPassword = editableToString(findViewById(R.id.confirm_password));
         this.birthdate = editableToString(findViewById(R.id.user_birthDate));
-        this.height_in = editableToString(findViewById(R.id.height_in));
-        this.height_ft = editableToString(findViewById(R.id.height_ft));
-        this.height_cm = editableToString(findViewById(R.id.height_cm));
+        if(this.unit_type == R.integer.IMPERIAL){
+            this.height_in = editableToString(findViewById(R.id.height_in));
+            this.height_ft = editableToString(findViewById(R.id.height_ft));
+            int temp_ft = Integer.parseInt(this.height_ft);
+            int temp_in = Integer.parseInt(this.height_in);
+            this.height_cm = String.valueOf(30.5 * temp_ft + 2.54 * temp_in);
+        }else if(this.unit_type == R.integer.METRIC){
+            this.height_cm = editableToString(findViewById(R.id.height_cm));
+            //TODO
+        }
+
+
         this.weight_lb = editableToString(findViewById(R.id.weight_lb));
         this.weight_kg = editableToString(findViewById(R.id.weight_kg));
         this.height_cm = editableToString(findViewById(R.id.height_cm));
@@ -137,6 +144,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         userItem.setUnit_type(this.unit_type);
         userItem.setActivity_level(this.activity_level);
         userDAO.insert(userItem);
+        Log.i("DBTest", new Gson().toJson(userItem));
 
         Intent it = new Intent(this, MainActivity.class);
         it.putExtra("user", userItem);
@@ -185,6 +193,6 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     }
 
     private String editableToString(View view){
-        return "";
+        return ((EditText)view).getText().toString();
     }
 }

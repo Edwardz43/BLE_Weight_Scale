@@ -11,7 +11,7 @@ import java.io.Serializable;
 public class UserItem implements Serializable{
     private String email, password, fisrtname, lastname,
             birthdate, height_in, height_ft, height_cm, weight_lb, weight_kg, gender;
-    private Integer unit_type, activity_level;
+    private Integer unit_type, activity_level, rememberMe;
     private Long id;
 
     public String getGender() {

@@ -148,7 +148,7 @@ public class UserDAO {
         // 準備回傳結果用的物件
         UserItem item = null;
         // 使用編號為查詢條件
-        String where = EMAIL + "=" + email;
+        String where = EMAIL + "='" + email+"'";
         // 執行查詢
         Cursor result = db.query(
                 TABLE_NAME, null, where, null, null, null, null, null);

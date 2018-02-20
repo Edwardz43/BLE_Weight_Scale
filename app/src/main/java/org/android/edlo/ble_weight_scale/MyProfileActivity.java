@@ -10,10 +10,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.android.edlo.ble_weight_scale.java_class.Data.UserItem;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,7 +25,8 @@ public class MyProfileActivity extends AppCompatActivity implements AdapterView.
 
     private boolean isMale, isImperial;
     private Button male, female, imperial, metric;
-    private String email, password, confirmPassword, firstname, lastName, Birthdate;
+    private EditText email, firstname, lastname, birthdate;
+    private UserItem userItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,13 +38,25 @@ public class MyProfileActivity extends AppCompatActivity implements AdapterView.
     }
 
     private void init(){
-        isMale = true;
-        setSex();
-        isImperial = true;
-        setUnit();
-        init_spinner();
+        email = findViewById(R.id.profile_email);
+        firstname = findViewById(R.id.profile_firstName);
+        lastname = findViewById(R.id.profile_lastName);
+        birthdate = findViewById(R.id.profile_birthDate);
+        userItem = (UserItem) getIntent().getSerializableExtra("user");
+        if(userItem != null){
+            setMyProfile(userItem);
+        }else {
+            isMale = true;
+            setSex();
+            isImperial = true;
+            setUnit();
+            init_spinner();
+        }
     }
 
+    private void setMyProfile(UserItem userItem){
+
+    }
 
     public void setMale(View view){
         isMale = true;
@@ -94,11 +110,17 @@ public class MyProfileActivity extends AppCompatActivity implements AdapterView.
 
     public void back(View view){
         Intent it = new Intent(this, LastWeightActivity.class);
+        if(userItem != null){
+            it.putExtra("user", userItem);
+        }
         startActivity(it);
     }
 
     public void save(View view){
         Intent it = new Intent(this, LastWeightActivity.class);
+        if(userItem != null){
+            it.putExtra("user", userItem);
+        }
         startActivity(it);
     }
 
@@ -108,7 +130,7 @@ public class MyProfileActivity extends AppCompatActivity implements AdapterView.
                 "Activity Level",
                 "Low (0-1 workouts/week)",
                 "Medium (2-4 workouts/week)",
-                "High (>5 0-1 workouts/week)"
+                "High (>5 workouts/week)"
         };
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(

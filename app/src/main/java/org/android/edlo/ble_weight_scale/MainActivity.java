@@ -22,6 +22,7 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.google.gson.Gson;
 
 import org.android.edlo.ble_weight_scale.java_class.Data.UserDAO;
 import org.android.edlo.ble_weight_scale.java_class.Data.UserItem;
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void init(){
         //edit_text init
-        UserItem userItem = (UserItem) getIntent().getSerializableExtra("user");
+        userItem = (UserItem) getIntent().getSerializableExtra("user");
         if(userItem != null){
             EditText login_email = (EditText)findViewById(R.id.login_email);
             EditText login_password = (EditText)findViewById(R.id.login_password);
@@ -162,6 +163,8 @@ public class MainActivity extends AppCompatActivity {
                 hasTask = true;
             }
         };
+
+
     }
 
     //登入
@@ -176,6 +179,10 @@ public class MainActivity extends AppCompatActivity {
             if(confirm_user(email, password)){
                 Log.i("ble_weight_scale", "Login Email : " + email);
                 Intent signInIntent = new Intent(this, LastWeightActivity.class);
+                userItem = (UserItem) getIntent().getSerializableExtra("user");
+                if(userItem != null){
+                    signInIntent.putExtra("user", userItem);
+                }
                 startActivity(signInIntent);
             }else{
                 Toast.makeText(this, "Incorrect Email or Password !", Toast.LENGTH_SHORT).show();
@@ -251,13 +258,17 @@ public class MainActivity extends AppCompatActivity {
         UserItem item = userDAO.get(email);
         if(item != null){
             String user_password = item.getPassword();
-            Log.d("USER_TEST",item.toString());
-            if(user_password == password){
+            Log.d("USER_TEST", "user_password : " + user_password);
+            Log.d("USER_TEST", "password : " + password);
+            if(user_password.equals(password)){
+                Log.d("USER_TEST", "OOOOOOO");
                 return true;
             }else {
+                Log.d("USER_TEST", "XXXXXX");
                 return false;
             }
         }else {
+            Log.d("USER_TEST", "GGGGG");
             return false;
         }
     }
