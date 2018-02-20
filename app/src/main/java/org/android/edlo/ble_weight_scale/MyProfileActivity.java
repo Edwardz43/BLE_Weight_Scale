@@ -25,7 +25,7 @@ public class MyProfileActivity extends AppCompatActivity implements AdapterView.
 
     private boolean isMale, isImperial;
     private Button male, female, imperial, metric;
-    private EditText email, firstname, lastname, birthdate;
+    private EditText email, firstname, lastname, birthdate, height_ft, height_in, height_cm;
     private UserItem userItem;
 
     @Override
@@ -42,6 +42,10 @@ public class MyProfileActivity extends AppCompatActivity implements AdapterView.
         firstname = findViewById(R.id.profile_firstName);
         lastname = findViewById(R.id.profile_lastName);
         birthdate = findViewById(R.id.profile_birthDate);
+        height_ft = findViewById(R.id.profile_height_ft);
+        height_in = findViewById(R.id.profile_height_in);
+        height_cm = findViewById(R.id.profile_height_cm);
+
         userItem = (UserItem) getIntent().getSerializableExtra("user");
         if(userItem != null){
             setMyProfile(userItem);

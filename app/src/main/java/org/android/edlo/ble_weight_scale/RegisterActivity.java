@@ -111,17 +111,34 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         this.password = editableToString(findViewById(R.id.user_password));
         this.confirmPassword = editableToString(findViewById(R.id.confirm_password));
         this.birthdate = editableToString(findViewById(R.id.user_birthDate));
+
+        // 身高公制/英制顯示的轉換
+        // 英制
         if(this.unit_type == R.integer.IMPERIAL){
             this.height_in = editableToString(findViewById(R.id.height_in));
             this.height_ft = editableToString(findViewById(R.id.height_ft));
             int temp_ft = Integer.parseInt(this.height_ft);
-            int temp_in = Integer.parseInt(this.height_in);
+            int temp_in;
+            if(this.height_ft != null){
+                temp_in = Integer.parseInt(this.height_in);
+            }else {
+                temp_in = 0;
+            }
             this.height_cm = String.valueOf(30.5 * temp_ft + 2.54 * temp_in);
+        // 公制
         }else if(this.unit_type == R.integer.METRIC){
             this.height_cm = editableToString(findViewById(R.id.height_cm));
-            //TODO
+            int tmp_cm = Integer.parseInt(this.height_cm);
+            double tmp_ft = tmp_cm *0.0328;
+            int ft = (int)tmp_ft;
+            long in = Math.round((tmp_ft - ft)*12);
+            if(in == 12) {
+                ft += 1;
+                in = 0;
+            }
+            this.height_ft = String.valueOf(ft);
+            this.height_in = String.valueOf(in);
         }
-
 
         this.weight_lb = editableToString(findViewById(R.id.weight_lb));
         this.weight_kg = editableToString(findViewById(R.id.weight_kg));
