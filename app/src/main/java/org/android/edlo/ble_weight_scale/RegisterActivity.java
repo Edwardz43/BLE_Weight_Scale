@@ -1,6 +1,7 @@
 package org.android.edlo.ble_weight_scale;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import org.android.edlo.ble_weight_scale.java_class.Algorithm;
 import org.android.edlo.ble_weight_scale.java_class.Data.UserDAO;
 import org.android.edlo.ble_weight_scale.java_class.Data.UserItem;
 
@@ -27,6 +29,10 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     private String email, password, confirmPassword, firstname, lastName,
                     birthdate, gender, height_in, height_ft, height_cm, weight_lb, weight_kg;
     private Integer unit_type, activity_level;
+    private UserDAO userDAO;
+    private UserItem userItem;
+    private Resources res;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,10 +43,21 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     }
 
     private void init(){
+        res = getResources();
+        userDAO = new UserDAO(getApplicationContext());
+        userItem = new UserItem();
+
+        //預設性別 : 男性
         isMale = true;
+        this.gender = res.getString(R.string.gender_male);
         setSex();
+
+        //預設單位 : 公制
         isImperial = true;
+        this.unit_type = res.getInteger(R.integer.IMPERIAL);
         setUnit();
+
+        //初始化下拉選單
         init_spinner();
     }
 
@@ -70,13 +87,13 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
 
     public void setImperialUnit(View view){
         isImperial = true;
-        this.unit_type = R.integer.IMPERIAL;
+        this.unit_type = res.getInteger(R.integer.IMPERIAL);
         setUnit();
     }
 
     public void setMetricUnit(View view){
         isImperial = false;
-        this.unit_type = R.integer.METRIC;
+        this.unit_type = res.getInteger(R.integer.METRIC);
         setUnit();
     }
 
@@ -105,7 +122,6 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
 
     public void register(View view){
         this.email = editableToString(findViewById(R.id.user_email));
-        Log.i("DBTest", "email : " + email);
         this.firstname = editableToString(findViewById(R.id.user_firstName));
         this.lastName = editableToString(findViewById(R.id.user_lastName));
         this.password = editableToString(findViewById(R.id.user_password));
@@ -114,38 +130,17 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
 
         // 身高公制/英制顯示的轉換
         // 英制
-        if(this.unit_type == R.integer.IMPERIAL){
+        if(this.unit_type == res.getInteger(R.integer.IMPERIAL)){
             this.height_in = editableToString(findViewById(R.id.height_in));
             this.height_ft = editableToString(findViewById(R.id.height_ft));
-            int temp_ft = Integer.parseInt(this.height_ft);
-            int temp_in;
-            if(this.height_ft != null){
-                temp_in = Integer.parseInt(this.height_in);
-            }else {
-                temp_in = 0;
-            }
-            this.height_cm = String.valueOf(30.5 * temp_ft + 2.54 * temp_in);
+            this.height_cm = Algorithm.imperialToMetric(height_ft, height_in);
         // 公制
-        }else if(this.unit_type == R.integer.METRIC){
+        }else if(this.unit_type == res.getInteger(R.integer.METRIC)){
             this.height_cm = editableToString(findViewById(R.id.height_cm));
-            int tmp_cm = Integer.parseInt(this.height_cm);
-            double tmp_ft = tmp_cm *0.0328;
-            int ft = (int)tmp_ft;
-            long in = Math.round((tmp_ft - ft)*12);
-            if(in == 12) {
-                ft += 1;
-                in = 0;
-            }
-            this.height_ft = String.valueOf(ft);
-            this.height_in = String.valueOf(in);
+            String[] result = Algorithm.metricToImperial(this.height_cm);
+            this.height_ft = result[0];
+            this.height_in = result[1];
         }
-
-        this.weight_lb = editableToString(findViewById(R.id.weight_lb));
-        this.weight_kg = editableToString(findViewById(R.id.weight_kg));
-        this.height_cm = editableToString(findViewById(R.id.height_cm));
-
-        UserDAO userDAO = new UserDAO(getApplicationContext());
-        UserItem userItem = new UserItem();
 
         userItem.setEmail(this.email);
         userItem.setPassword(this.password);
@@ -161,7 +156,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         userItem.setUnit_type(this.unit_type);
         userItem.setActivity_level(this.activity_level);
         userDAO.insert(userItem);
-        Log.i("DBTest", new Gson().toJson(userItem));
+        Log.i("DBTest", "Register : "+new Gson().toJson(userItem));
 
         Intent it = new Intent(this, MainActivity.class);
         it.putExtra("user", userItem);
@@ -184,13 +179,13 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long l) {
-        Log.i("ble_weight_scale", "spinner select item : " + position);
-        this.activity_level = position - 1;
+        //Log.i("ble_weight_scale", "spinner select item : " + position);
         String selectedItemText = (String) parent.getItemAtPosition(position);
         // If user change the default selection
         // First item is disable and it is used for hint
         if (position > 0) {
             // Notify the selected item text
+            this.activity_level = position;
             Toast.makeText(getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT).show();
         }
     }

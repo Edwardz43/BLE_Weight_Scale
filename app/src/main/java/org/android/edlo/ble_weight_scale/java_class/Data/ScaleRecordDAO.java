@@ -49,7 +49,7 @@ public class ScaleRecordDAO extends DAO{
     }
 
     // 新增參數指定的物件
-    public Item insert(Item item) {
+    public ScaleRecordItem insert(ScaleRecordItem item) {
         // 建立準備新增資料的ContentValues物件
         ContentValues cv = new ContentValues();
 
@@ -73,7 +73,7 @@ public class ScaleRecordDAO extends DAO{
     }
 
     // 修改參數指定的物件
-    public boolean update(Item item) {
+    public boolean update(ScaleRecordItem item) {
         // 建立準備修改資料的ContentValues物件
         ContentValues cv = new ContentValues();
 
@@ -101,8 +101,8 @@ public class ScaleRecordDAO extends DAO{
     }
 
     // 讀取所有資料
-    public List<Item> getAll() {
-        List<Item> result = new ArrayList<>();
+    public List<ScaleRecordItem> getAll() {
+        List<ScaleRecordItem> result = new ArrayList<>();
         Cursor cursor = db.query(
                 TABLE_NAME, null, null, null, null, null, null, null);
 
@@ -115,8 +115,8 @@ public class ScaleRecordDAO extends DAO{
     }
 
     // 讀取最新一筆資料(Last Weught)
-    public Item getLastWeight() {
-        Item result = new Item();
+    public ScaleRecordItem getLastWeight() {
+        ScaleRecordItem result = new ScaleRecordItem();
         Cursor cursor = db.query(
                 TABLE_NAME, null, null, null, null, null, null, null);
         while (cursor.moveToLast()) {
@@ -128,9 +128,9 @@ public class ScaleRecordDAO extends DAO{
     }
 
     // 取得指定編號的資料物件
-    public Item get(long id) {
+    public ScaleRecordItem get(long id) {
         // 準備回傳結果用的物件
-        Item item = null;
+        ScaleRecordItem item = null;
         // 使用編號為查詢條件
         String where = KEY_ID + "=" + id;
         // 執行查詢
@@ -150,9 +150,9 @@ public class ScaleRecordDAO extends DAO{
     }
 
     // 把Cursor目前的資料包裝為物件
-    public Item getRecord(Cursor cursor) {
+    public ScaleRecordItem getRecord(Cursor cursor) {
         // 準備回傳結果用的物件
-        Item result = new Item();
+        ScaleRecordItem result = new ScaleRecordItem();
 
         result.setId(cursor.getLong(0));
         result.setDateTime(cursor.getLong(1));
@@ -176,13 +176,13 @@ public class ScaleRecordDAO extends DAO{
 
     // 建立範例資料
     public void sample() {
-        Item item = new Item(0, new Date().getTime(), 155.3, 1l);
-        Item item2 = new Item(0, new Date().getTime(), 155.2, 1l);
-        Item item3 = new Item(0, new Date().getTime(), 155.3, 1l);
-        Item item4 = new Item(0, new Date().getTime(), 155, 1l);
-        Item item5 = new Item(0, new Date().getTime(), 155.5, 1l);
-        Item item6 = new Item(0, new Date().getTime(), 156.5, 1l);
-        Item item7 = new Item(0, new Date().getTime(), 156.3, 1l);
+       /* ScaleRecordItem item = new ScaleRecordItem(0, new Date().getTime(), 155.3, 1l);
+        ScaleRecordItem item2 = new ScaleRecordItem(0, new Date().getTime(), 155.2, 1l);
+        ScaleRecordItem item3 = new Item(0, new Date().getTime(), 155.3, 1l);
+        ScaleRecordItem item4 = new Item(0, new Date().getTime(), 155, 1l);
+        ScaleRecordItem item5 = new Item(0, new Date().getTime(), 155.5, 1l);
+        ScaleRecordItem item6 = new Item(0, new Date().getTime(), 156.5, 1l);
+        ScaleRecordItem item7 = new Item(0, new Date().getTime(), 156.3, 1l);
         Item item8 = new Item(0, new Date().getTime(), 157.1, 1l);
         Item item9 = new Item(0, new Date().getTime(), 156.9, 1l);
         Item item10 = new Item(0, new Date().getTime(), 156.3, 1l);
@@ -228,6 +228,6 @@ public class ScaleRecordDAO extends DAO{
         insert(item23);
         insert(item24);
         insert(item25);
-        insert(item26);
+        insert(item26);*/
     }
 }

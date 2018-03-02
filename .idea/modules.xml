@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/BLE_Weight_Scale2.iml" filepath="$PROJECT_DIR$/BLE_Weight_Scale2.iml" />
       <module fileurl="file://D:\StudioProjects\cloud_fitness\BLE_Weight_Scale2.iml" filepath="D:\StudioProjects\cloud_fitness\BLE_Weight_Scale2.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/cloud_fitness.iml" filepath="$PROJECT_DIR$/cloud_fitness.iml" />
+      <module fileurl="file://C:\Users\EdLo\AndroidStudioProjects\BLE_Weight_Scale2\cloud_fitness.iml" filepath="C:\Users\EdLo\AndroidStudioProjects\BLE_Weight_Scale2\cloud_fitness.iml" />
     </modules>
   </component>
 </project>

@@ -33,6 +33,7 @@ public class UserDAO {
     public static final String GENDER = "gender";
     public static final String UNIT_TYPE = "unit_type";
     public static final String ACTIVITY_LEVEL = "activity_level";
+    public static final String FB_ID = "fb_id";
 
     // 建立表格
     public static final String CREATE_TABLE =
@@ -50,7 +51,8 @@ public class UserDAO {
                     WEIGHT_KG + " REAL , "+
                     GENDER + " TEXT NOT NULL, "+
                     UNIT_TYPE + " INTEGER NOT NULL, "+
-                    ACTIVITY_LEVEL + " INTEGER NOT NULL)";
+                    ACTIVITY_LEVEL + " INTEGER NOT NULL, " +
+                    FB_ID + " INTEGER )";
     // 資料庫物件
     private SQLiteDatabase db;
 
@@ -78,10 +80,12 @@ public class UserDAO {
         cv.put(UNIT_TYPE, item.getUnit_type());
 
         if(item.getHeight_in()!= null){cv.put(HEIGHT_IN, item.getHeight_in());}
-        if(item.getHeight_ft()!= null){cv.put(HEIGHT_IN, item.getHeight_ft());}
-        if(item.getHeight_cm()!= null){cv.put(HEIGHT_IN, item.getHeight_cm());}
-        if(item.getWeight_lb()!= null){cv.put(HEIGHT_IN, item.getWeight_lb());}
-        if(item.getWeight_kg()!= null){cv.put(HEIGHT_IN, item.getWeight_kg());}
+        if(item.getHeight_ft()!= null){cv.put(HEIGHT_FT, item.getHeight_ft());}
+        if(item.getHeight_cm()!= null){cv.put(HEIGHT_CM, item.getHeight_cm());}
+        if(item.getWeight_lb()!= null){cv.put(WEIGHT_LB, item.getWeight_lb());}
+        if(item.getWeight_kg()!= null){cv.put(WEIGHT_KG, item.getWeight_kg());}
+
+        if(item.getFb_id()!= null){cv.put(FB_ID, item.getFb_id());}
 
         // 新增一筆資料並取得編號
         // 第一個參數是表格名稱
@@ -109,10 +113,12 @@ public class UserDAO {
         cv.put(ACTIVITY_LEVEL, item.getActivity_level());
 
         if(item.getHeight_in()!= null){cv.put(HEIGHT_IN, item.getHeight_in());}
-        if(item.getHeight_ft()!= null){cv.put(HEIGHT_IN, item.getHeight_ft());}
-        if(item.getHeight_cm()!= null){cv.put(HEIGHT_IN, item.getHeight_cm());}
-        if(item.getWeight_lb()!= null){cv.put(HEIGHT_IN, item.getWeight_lb());}
-        if(item.getWeight_kg()!= null){cv.put(HEIGHT_IN, item.getWeight_kg());}
+        if(item.getHeight_ft()!= null){cv.put(HEIGHT_FT, item.getHeight_ft());}
+        if(item.getHeight_cm()!= null){cv.put(HEIGHT_CM, item.getHeight_cm());}
+        if(item.getWeight_lb()!= null){cv.put(WEIGHT_LB, item.getWeight_lb());}
+        if(item.getWeight_kg()!= null){cv.put(WEIGHT_KG, item.getWeight_kg());}
+
+        if(item.getFb_id()!= null){cv.put(FB_ID, item.getFb_id());}
 
         // 設定修改資料的條件為編號
         // 格式為「欄位名稱＝資料」
@@ -165,6 +171,28 @@ public class UserDAO {
         return item;
     }
 
+    // 取得指定編號的User by FB ID
+    public UserItem getByFBId(String fb_id) {
+        // 準備回傳結果用的物件
+        UserItem item = null;
+        // 使用編號為查詢條件
+        String where = FB_ID + "=" + fb_id;
+        // 執行查詢
+        Cursor result = db.query(
+                TABLE_NAME, null, where, null, null, null, null, null);
+
+        // 如果有查詢結果
+        if (result.moveToFirst()) {
+            // 讀取包裝一筆資料的物件
+            item = getRecord(result);
+        }
+
+        // 關閉Cursor物件
+        result.close();
+        // 回傳結果
+        return item;
+    }
+
     // 把Cursor目前的資料包裝為物件
     public UserItem getRecord(Cursor cursor) {
         // 準備回傳結果用的物件
@@ -184,6 +212,7 @@ public class UserDAO {
         result.setGender(cursor.getString(11));
         result.setUnit_type(cursor.getInt(12));
         result.setActivity_level(cursor.getInt(13));
+        result.setFb_id(cursor.getLong(14));
 
         // 回傳結果
         return result;

@@ -12,7 +12,23 @@ public class UserItem implements Serializable{
     private String email, password, fisrtname, lastname,
             birthdate, height_in, height_ft, height_cm, weight_lb, weight_kg, gender;
     private Integer unit_type, activity_level, rememberMe;
-    private Long id;
+    private Long id, fb_id;
+
+    public Integer getRememberMe() {
+        return rememberMe;
+    }
+
+    public void setRememberMe(Integer rememberMe) {
+        this.rememberMe = rememberMe;
+    }
+
+    public Long getFb_id() {
+        return fb_id;
+    }
+
+    public void setFb_id(Long fb_id) {
+        this.fb_id = fb_id;
+    }
 
     public String getGender() {
         return gender;

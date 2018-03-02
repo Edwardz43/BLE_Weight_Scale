@@ -1,7 +1,14 @@
 package org.android.edlo.ble_weight_scale;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.net.Uri;
+import android.preference.Preference;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,7 +35,9 @@ import org.android.edlo.ble_weight_scale.java_class.Data.UserDAO;
 import org.android.edlo.ble_weight_scale.java_class.Data.UserItem;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
@@ -55,6 +64,22 @@ public class MainActivity extends AppCompatActivity {
         //隱藏狀態
         //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED ) {
+            Log.i("brad", "B");
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            Manifest.permission.INTERNET,
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                    },
+                    1);
+        }else {
+            Log.i("brad", "A");
+            init();
+        }
 
         //FB登入
         callbackManager = CallbackManager.Factory.create();
@@ -88,9 +113,20 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onCompleted(JSONObject object, GraphResponse response) {
                                 //讀出姓名 ID FB個人頁面連結
-                                UserItem userItem = new UserItem();
-                                userItem.setFisrtname(object.optString("name"));
-
+                                String fb_id = object.optString("id");
+                                userItem = userDAO.getByFBId(fb_id);
+                                if(userItem == null){
+                                    Log.d("FB Login Test","no useritem");
+                                    userItem = new UserItem();
+                                }else {
+                                    Log.d("FB Login Test","got useritem");
+                                }
+                                userItem.setFb_id(Long.parseLong(fb_id));
+                                Intent lastWeightIntent = new Intent(getApplicationContext(), LastWeightActivity.class);
+                                lastWeightIntent.putExtra("user", userItem);
+                                Log.d("FB Login Test", "FB ID " + userItem.getFb_id());
+                                getApplicationContext().startActivity(lastWeightIntent);
+                                //Log.d("FB Test", "FB ID " + userItem.getFb_id());
                             }
                         });
 
@@ -99,19 +135,19 @@ public class MainActivity extends AppCompatActivity {
                 parameters.putString("fields", "id,name,link");
                 request.setParameters(parameters);
                 request.executeAsync();
-                Log.i("FB","loginResult : " + loginResult);
+                //Log.i("FB Test","loginResult : " + loginResult);
             }
 
             @Override
             public void onCancel() {
                 // App code
-                Log.d("FB","CANCEL");
+                Log.d("FB Test","CANCEL");
             }
 
             @Override
             public void onError(FacebookException exception) {
                 // App code
-                Log.d("FB",exception.toString());
+                Log.d("FB Test",exception.toString());
             }
         });
 
@@ -136,15 +172,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         callbackManager.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
-        Log.i("FB", "resultCode : "+ resultCode);
-        Log.i("FB", "data : " + data);
-        if(resultCode != 0){
-            Intent intent = new Intent(this, LastWeightActivity.class);
-            startActivity(intent);
-        }
+//        Log.i("FB Test", "resultCode : "+ resultCode);
+//        Log.i("FB Test", "data : " + data);
     }
 
     private void init(){
+        //test
+        SharedPreferences preference = getApplicationContext().getSharedPreferences("",0);
+
+        List<UserItem> userItems = userDAO.getAll();
+        Log.d("DB_Test", new Gson().toJson(userItems));
+
         //edit_text init
         userItem = (UserItem) getIntent().getSerializableExtra("user");
         if(userItem != null){
@@ -163,8 +201,6 @@ public class MainActivity extends AppCompatActivity {
                 hasTask = true;
             }
         };
-
-
     }
 
     //登入
@@ -177,12 +213,18 @@ public class MainActivity extends AppCompatActivity {
         if(email.length() > 0 && password.length() > 0){
             //confirm user
             if(confirm_user(email, password)){
-                Log.i("ble_weight_scale", "Login Email : " + email);
+                //Log.i("ble_weight_scale", "Login Email : " + email);
                 Intent signInIntent = new Intent(this, LastWeightActivity.class);
-                userItem = (UserItem) getIntent().getSerializableExtra("user");
+                if(userItem == null){
+                    userItem = (UserItem) getIntent().getSerializableExtra("user");
+                    Log.i("DBTest", "MainActivity null : "+new Gson().toJson(userItem));
+                }
                 if(userItem != null){
                     signInIntent.putExtra("user", userItem);
+                    Log.i("DBTest", "MainActivity not null : "+new Gson().toJson(userItem));
                 }
+
+
                 startActivity(signInIntent);
             }else{
                 Toast.makeText(this, "Incorrect Email or Password !", Toast.LENGTH_SHORT).show();
@@ -219,6 +261,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("onDestroy", "Destroy");
         super.onDestroy();
         accessTokenTracker.stopTracking();
+        LoginManager.getInstance().logOut();
     }
 
     //離開app
@@ -255,9 +298,9 @@ public class MainActivity extends AppCompatActivity {
 
     //驗證User
     private boolean confirm_user(String email, String password){
-        UserItem item = userDAO.get(email);
-        if(item != null){
-            String user_password = item.getPassword();
+        userItem = userDAO.get(email);
+        if(userItem != null){
+            String user_password = userItem.getPassword();
             Log.d("USER_TEST", "user_password : " + user_password);
             Log.d("USER_TEST", "password : " + password);
             if(user_password.equals(password)){

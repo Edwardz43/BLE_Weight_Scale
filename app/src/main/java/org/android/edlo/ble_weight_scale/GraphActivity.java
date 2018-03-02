@@ -25,6 +25,8 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 
 import org.android.edlo.ble_weight_scale.java_class.Data.Item;
 import org.android.edlo.ble_weight_scale.java_class.Data.ScaleRecordDAO;
+import org.android.edlo.ble_weight_scale.java_class.Data.UserDAO;
+import org.android.edlo.ble_weight_scale.java_class.Data.UserItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +51,8 @@ public class GraphActivity extends AppCompatActivity {
     private final static String YEAR = "year";
     private Button btnDay, btnWeek, btnMonth, btnYear;
     private List<Button> buttonList;
+    private UserDAO userDAO;
+    private UserItem userItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +86,7 @@ public class GraphActivity extends AppCompatActivity {
     }
 
     private void initChart() {
+        userItem = (UserItem)getIntent().getSerializableExtra("user");
         //test
         float minYAxisValue;
         switch (mType){
@@ -304,6 +309,9 @@ public class GraphActivity extends AppCompatActivity {
 
     public void back(View view){
         Intent it = new Intent(this, LastWeightActivity.class);
+        if(userItem != null){
+            it.putExtra("user" , userItem);
+        }
         startActivity(it);
     }
 

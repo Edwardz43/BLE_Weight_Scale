@@ -8,4 +8,6 @@
     <integer name="CONNECTION_SUCCESS" >1</integer>
     <integer name="CONNECTION_DEVICE_NOT_FOUND" >2</integer>
     <integer name="CONNECTION_LOST" >3</integer>
+    <integer name="gender_male">0</integer>
+    <integer name="gender_female">1</integer>
 </resources>
