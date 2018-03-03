@@ -244,27 +244,24 @@
                     android:layout_height="wrap_content"
                     android:text="Connect"
                     android:onClick="connect"
-                    android:layout_marginStart="50dp"
-                    android:layout_marginTop="0dp"
-                    android:layout_marginBottom="30dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_weight="1"
                     />
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="write"
                     android:onClick="write"
-                    android:layout_marginStart="50dp"
-                    android:layout_marginTop="0dp"
-                    android:layout_marginBottom="30dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_weight="1"
                     />
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="read"
                     android:onClick="read"
-                    android:layout_marginStart="50dp"
-                    android:layout_marginTop="0dp"
-                    android:layout_marginBottom="30dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_weight="1"
                     />
 
             </LinearLayout>

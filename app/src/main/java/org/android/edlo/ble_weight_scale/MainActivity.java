@@ -68,16 +68,16 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED ) {
-            Log.i("brad", "B");
+            Log.i("ed43", "B");
             ActivityCompat.requestPermissions(this,
                     new String[]{
                             Manifest.permission.INTERNET,
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION
+                            Manifest.permission.BLUETOOTH,
+                            Manifest.permission.BLUETOOTH_ADMIN
                     },
                     1);
         }else {
-            Log.i("brad", "A");
+            Log.i("ed43", "A");
             init();
         }
 

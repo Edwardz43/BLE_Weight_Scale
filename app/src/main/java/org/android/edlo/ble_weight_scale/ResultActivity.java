@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import com.inuker.bluetooth.library.BluetoothClient;
 import com.inuker.bluetooth.library.BluetoothService;
 import com.inuker.bluetooth.library.beacon.Beacon;
+import com.inuker.bluetooth.library.connect.listener.BleConnectStatusListener;
 import com.inuker.bluetooth.library.connect.listener.BluetoothStateListener;
 import com.inuker.bluetooth.library.connect.options.BleConnectOptions;
 import com.inuker.bluetooth.library.connect.response.BleConnectResponse;
@@ -37,18 +38,22 @@ import java.util.UUID;
 
 import static com.inuker.bluetooth.library.Constants.REQUEST_FAILED;
 import static com.inuker.bluetooth.library.Constants.REQUEST_SUCCESS;
+import static com.inuker.bluetooth.library.Constants.STATUS_CONNECTED;
+import static com.inuker.bluetooth.library.Constants.STATUS_DISCONNECTED;
 
 public class ResultActivity extends AppCompatActivity {
     private String deviceMAC;
     private BluetoothClient mClient;
-    private List<BleGattService> mService;
     private final UUID serviceUUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e4");
-    private final UUID notifyCharacterUUID = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e1");
-    private final UUID writeCharacterUUID = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e0");
-    private final UUID readCharacterUUID = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e1");
-    private boolean isConnected;
-    private List<SearchResult> device_List;
-
+    private final UUID notifyUUID = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e1");
+    private final UUID writeUUID = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e0");
+    private final UUID readUUID = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e1");
+    private boolean isConnected, isBluetoothOpen, isDialogShow;
+    protected List<SearchResult> device_List;
+    private AlertDialog.Builder dialog_list;
+    private MyOnclickListener mOnclickListener;
+    private BluetoothStateListener mBluetoothStateListener;
+    private BleConnectStatusListener mBleConnectStatusListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,145 +66,151 @@ public class ResultActivity extends AppCompatActivity {
 
     private void init(){
         isConnected = false;
+        isBluetoothOpen = false;
+        isDialogShow = false;
         device_List = new ArrayList();
+        mOnclickListener = new MyOnclickListener();
+        mOnclickListener.setParent(this);
+        dialog_list = new AlertDialog.Builder(this);
         mClient = new BluetoothClient(getApplicationContext());
+        mClient.openBluetooth();
 
-        SearchRequest request = new SearchRequest.Builder()
-                .searchBluetoothLeDevice(3000, 3).build();
-
-        mClient.search(request, new SearchResponse() {
+        mBluetoothStateListener = new BluetoothStateListener() {
             @Override
-            public void onSearchStarted() {
-                Log.d("ed43","onSearchStarted");
-            }
+            public void onBluetoothStateChanged(boolean openOrClosed) {
+                Log.d("ed43","onBluetoothStateChanged : " +openOrClosed);
+                SearchRequest request = new SearchRequest.Builder()
+                        .searchBluetoothLeDevice(3000, 3).build();
 
+                mClient.search(request, new SearchResponse() {
+                    @Override
+                    public void onSearchStarted() {
+                        Log.d("ed43","onSearchStarted");
+                    }
+
+                    @Override
+                    public void onDeviceFounded(SearchResult device) {
+//                    Beacon beacon = new Beacon(device.scanRecord);
+//                    BluetoothLog.v(String.format("beacon for %s\n%s", device.getAddress(), beacon.toString()));
+                        if(device.getName().substring(0, 3).equals("MCF")){
+                            if(!device_List.contains(device)) device_List.add(device);
+                            dialog_list.setTitle("Select Device");
+                            String[] device_Name = new String[device_List.size()];
+                            String[] device_Address = new String[device_List.size()];
+                            for (int i = 0; i < device_List.size(); i++){
+                                device_Name[i] = device_List.get(i).getName();
+                                device_Address[i] = device_List.get(i).getAddress();
+                            }
+                            dialog_list.setSingleChoiceItems(device_Name, -1, mOnclickListener);
+
+                            dialog_list.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    if(i != -1){
+                                        deviceMAC = device_List.get(i).getAddress();
+                                        Log.d("ed43", "select device : " + deviceMAC);
+                                        isDialogShow = false;
+                                    }
+                                }
+                            });
+                            if(!isDialogShow) {
+                                dialog_list.show();
+                                isDialogShow = true;
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onSearchStopped() {
+                        Log.d("ed43","onSearchStopped");
+                    }
+
+                    @Override
+                    public void onSearchCanceled() {
+                        Log.d("ed43","onSearchCanceled");
+                    }
+                });
+            }
+        };
+
+        mBleConnectStatusListener = new BleConnectStatusListener() {
             @Override
-            public void onDeviceFounded(SearchResult device) {
-                Beacon beacon = new Beacon(device.scanRecord);
-                BluetoothLog.v(String.format("beacon for %s\n%s", device.getAddress(), beacon.toString()));
-                device_List.add(device);
-//                Log.d("Blue_Tooth_Test",String.format("beacon for %s\n%s", device.getAddress(), beacon.toString()));
-                device.getAddress();
-//                Log.d("Blue_Tooth_Test","device.getName() + " + device.getName());
-//                Log.d("Blue_Tooth_Test","device.getAddress() + " + device.getAddress());
-                deviceMAC = device.getAddress();
-                connectDevice(mClient);
-                testNoptify();
-
+            public void onConnectStatusChanged(String mac, int status) {
+                if (status == STATUS_CONNECTED) {
+                    Log.d("ed43","connecting : CONNECTED");
+                } else if (status == STATUS_DISCONNECTED) {
+                    Log.d("ed43","connecting : DISCONNECTED");
+                }
             }
-
-            @Override
-            public void onSearchStopped() {
-                Log.d("ed43","onSearchStopped");
-            }
-
-            @Override
-            public void onSearchCanceled() {
-                Log.d("ed43","onSearchCanceled");
-            }
-        });
+        };
 
         mClient.registerBluetoothStateListener(mBluetoothStateListener);
+        mClient.registerConnectStatusListener(deviceMAC, mBleConnectStatusListener);
 //        mClient.unregisterBluetoothStateListener(mBluetoothStateListener);
-        mClient.registerBluetoothBondListener(mBluetoothBondListener);
 //        mClient.unregisterBluetoothBondListener(mBluetoothBondListener);
-        /*
-        String[] device_Name = new String[device_List.size()];
-        String[] device_Address = new String[device_List.size()];
-        for (int i = 0; i < device_List.size(); i++){
-            device_Name[i] = device_List.get(i).getName();
-            device_Address[i] = device_List.get(i).getAddress();
-        }
-
-        AlertDialog.Builder dialog_list = new AlertDialog.Builder(this);
-        dialog_list.setTitle("Select Device");
-        dialog_list.setItems(device_Name, new DialogInterface.OnClickListener(){
-            @Override
-
-            //只要你在onClick處理事件內，使用which參數，就可以知道按下陣列裡的哪一個了
-            public void onClick(DialogInterface dialog, int which) {
-                // TODO Auto-generated method stub
-                //Toast.makeText(getParent(), "你選的是" + device_Name[which], Toast.LENGTH_SHORT).show();
-            }
-        });
-        dialog_list.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        });
-        dialog_list.show();*/
     }
 
     private boolean connectDevice(BluetoothClient mClient){
+        if (deviceMAC == null) {
+            return false;
+        }
         BleConnectOptions options = new BleConnectOptions.Builder()
                 .setConnectRetry(3)   // 连接如果失败重试3次
-                .setConnectTimeout(5)   // 连接超时30s
+                .setConnectTimeout(30000)   // 连接超时30s
                 .setServiceDiscoverRetry(3)  // 发现服务如果失败重试3次
                 .setServiceDiscoverTimeout(20000)  // 发现服务超时20s
                 .build();
-
+        Log.d("ed43","connectDevice deviceMAC : " + deviceMAC);
         mClient.connect(deviceMAC, options, new BleConnectResponse() {
             @Override
             public void onResponse(int code, BleGattProfile data) {
-                Log.d("ed43","onResponse");
+                Log.d("ed43","connectDevice Response");
                 if(code == REQUEST_SUCCESS){
-                    mService = data.getServices();
                     isConnected = true;
-                    testRead();
+                    //testRead();
+                    Log.d("ed43", "Connect : REQUEST_SUCCESS");
                     Log.d("ed43", new Gson().toJson(data));
                 }else if (code == REQUEST_FAILED){
-                    Log.d("ed43","REQUEST_FAILED");
+                    Log.d("ed43","Connect : REQUEST_FAILED");
                 }
             }
         });
         return true;
     }
 
-    private final BluetoothStateListener mBluetoothStateListener = new BluetoothStateListener() {
-        @Override
-        public void onBluetoothStateChanged(boolean openOrClosed) {
-            Log.d("ed43","onBluetoothStateChanged");
-        }
-
-    };
-
-    private final BluetoothBondListener mBluetoothBondListener = new BluetoothBondListener() {
-        @Override
-        public void onBondStateChanged(String mac, int bondState) {
-            // bondState = Constants.BOND_NONE, BOND_BONDING, BOND_BONDED
-            Log.d("ed43","onBondStateChanged");
-        }
-    };
-
     public void connect(View view){
+        Log.d("ed43","connect()");
         connectDevice(mClient);
+        testNotify();
     }
 
     public void write(View view){
+        Log.d("ed43","write()");
         testWrite();
     }
 
     public void read(View view){
+        Log.d("ed43","read()");
         testRead();
     }
 
     private void testRead(){
-        Log.d("ed43", "testRead");
-        mClient.read(deviceMAC, serviceUUID, readCharacterUUID, new BleReadResponse() {
+        mClient.read(deviceMAC, serviceUUID, readUUID, new BleReadResponse() {
             @Override
             public void onResponse(int code, byte[] data) {
-                Log.d("ed43", "read response code : " + code);
+                //Log.d("ed43", "read response code : " + code);
                 if (code == REQUEST_SUCCESS) {
                     String mData = toHexString(data);
                     Log.d("ed43", mData);
+                }else if(code == REQUEST_FAILED){
+                    Log.d("ed43", "Read : REQUEST_FAILED");
                 }
             }
         });
     }
 
-    private void testNoptify(){
-        mClient.notify(deviceMAC, serviceUUID, notifyCharacterUUID, new BleNotifyResponse() {
+    private void testNotify(){
+        mClient.notify(deviceMAC, serviceUUID, notifyUUID, new BleNotifyResponse() {
             @Override
             public void onNotify(UUID service, UUID character, byte[] value) {
                 String mData = toHexString(value);
@@ -208,9 +219,11 @@ public class ResultActivity extends AppCompatActivity {
             }
             @Override
             public void onResponse(int code) {
-                Log.d("ed43", "notify response code : " + code);
+                //Log.d("ed43", "notify response code : " + code);
                 if (code == REQUEST_SUCCESS) {
                     Log.d("ed43", "REQUEST_SUCCESS");
+                }else if(code == REQUEST_FAILED){
+                    Log.d("ed43", "Notify : REQUEST_FAILED");
                 }
             }
         });
@@ -219,15 +232,17 @@ public class ResultActivity extends AppCompatActivity {
     private void testWrite(){
         //String data = "5a d5 05 12 01 01 9c 00 c0 00 00 00 8e aa";
         byte[] bytes = new byte[]{90, -43, 5, 18, 1, -100, 0, -64, 0, 0, 0, -114, -86};
-        mClient.write(deviceMAC, serviceUUID, writeCharacterUUID, bytes, new BleWriteResponse() {
+        mClient.write(deviceMAC, serviceUUID, writeUUID, bytes, new BleWriteResponse() {
             @Override
             public void onResponse(int code) {
-                Log.d("ed43", "write response code : " + code);
+                //Log.d("ed43", "write response code : " + code);
                 if (code == REQUEST_SUCCESS) {
                     Log.d("ed43", "OK");
                     if(isConnected){
                         testRead();
                     }
+                }else if(code == REQUEST_FAILED){
+                    Log.d("ed43", "Write : REQUEST_FAILED");
                 }
             }
         });
@@ -255,4 +270,44 @@ public class ResultActivity extends AppCompatActivity {
         return new String(hexChars);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d("ed43", "onPause");
+        mClient.closeBluetooth();
+        mClient.unregisterBluetoothStateListener(mBluetoothStateListener);
+        mClient.unregisterConnectStatusListener(deviceMAC, mBleConnectStatusListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("ed43", "onStop");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("ed43", "onResume");
+        init();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("ed43", "onDestroy");
+    }
+
+    private class MyOnclickListener implements DialogInterface.OnClickListener{
+        private ResultActivity resultActivity;
+
+        public void setParent(ResultActivity activity){this.resultActivity = activity;}
+        @Override
+        public void onClick(DialogInterface dialogInterface, int i) {
+            //只要你在onClick處理事件內，使用which參數，就可以知道按下陣列裡的哪一個了
+            // TODO Auto-generated method stub
+            Toast.makeText(resultActivity, "你選的是" + resultActivity.device_List.get(i).getName(), Toast.LENGTH_SHORT).show();
+            resultActivity.deviceMAC = resultActivity.device_List.get(i).getAddress();
+        }
+    }
 }
