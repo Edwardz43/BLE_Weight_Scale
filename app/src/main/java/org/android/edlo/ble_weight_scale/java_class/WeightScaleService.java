@@ -19,7 +19,7 @@ import java.util.UUID;
  * Created by EdLo on 2018/3/2.
  */
 
-public class cloudFitnessWeightScaleService extends Service{
+public class WeightScaleService extends Service{
     private String deviceMAC;
     private BluetoothClient mClient;
     private List<BleGattService> mService;
@@ -81,16 +81,16 @@ public class cloudFitnessWeightScaleService extends Service{
                 Log.i("ed43", "DEBUG");
                 if (status == Constants.STATUS_CONNECTED) {
                     isBlueToothOpen = true;
-                    cloudFitnessWeightScaleService.this.deviceMAC = mac;
+                    WeightScaleService.this.deviceMAC = mac;
 
                     // 發出廣播
-                    Intent it = new Intent("cloudFitnessWeightScaleService");
+                    Intent it = new Intent("WeightScaleService");
                     it.putExtra("isBluetoothOpen", isBlueToothOpen);
                     sendBroadcast(it);
                     Log.i("ed43", "connecting");
 
                 } else if (status == Constants.STATUS_DISCONNECTED) {
-                    cloudFitnessWeightScaleService.isBlueToothOpen = false;
+                    WeightScaleService.isBlueToothOpen = false;
                     Log.i("ed43", "disconnect");
 
 
@@ -112,7 +112,7 @@ public class cloudFitnessWeightScaleService extends Service{
         }
 
         isBlueToothOpen = true;
-        Intent localIntent = new Intent("cloudFitnessWeightScaleService");
+        Intent localIntent = new Intent("WeightScaleService");
         localIntent.putExtra("isBluetoothOpen", isBlueToothOpen);
         sendBroadcast(localIntent);
     }

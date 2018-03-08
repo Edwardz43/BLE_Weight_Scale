@@ -24,6 +24,7 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 
 import org.android.edlo.ble_weight_scale.java_class.Data.Item;
+import org.android.edlo.ble_weight_scale.java_class.Data.RecordItem;
 import org.android.edlo.ble_weight_scale.java_class.Data.ScaleRecordDAO;
 import org.android.edlo.ble_weight_scale.java_class.Data.UserDAO;
 import org.android.edlo.ble_weight_scale.java_class.Data.UserItem;
@@ -43,7 +44,7 @@ public class GraphActivity extends AppCompatActivity {
     private double[] dataSet;
     protected Typeface mTfLight;
     private ScaleRecordDAO scaleRecordDAO;
-    private ArrayList<Item> items;
+    private ArrayList<RecordItem> items;
     private String mType;
     private final static String MONTH = "month";
     private final static String WEEK = "week";
@@ -60,18 +61,18 @@ public class GraphActivity extends AppCompatActivity {
         getSupportActionBar().hide(); //隱藏標題
         //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN); //隱藏狀態
         setContentView(R.layout.activity_graph);
-//        scaleRecordDAO = new ScaleRecordDAO(getApplicationContext());
-//
-//        if(scaleRecordDAO.getCount() == 0){
-//            scaleRecordDAO.sample();
-//        }
-//
-//        items = new ArrayList<>();
-//        items = (ArrayList<Item>) scaleRecordDAO.getAll();
-//        for (Item scaleRecordItem : items) {
-//            String result = "Weight : " + scaleRecordItem.getWeight() +" ; "+ scaleRecordItem.toString();
-//            Log.d("Chart", result);
-//        }
+        scaleRecordDAO = new ScaleRecordDAO(getApplicationContext());
+
+        if(scaleRecordDAO.getCount() == 0){
+            scaleRecordDAO.sample();
+        }
+
+        items = new ArrayList<>();
+        items = (ArrayList<RecordItem>) scaleRecordDAO.getAll();
+        for (RecordItem recordItem : items) {
+            String result = "Weight : " + recordItem.getWeight() +" ; "+ recordItem.toString();
+            Log.d("Chart", result);
+        }
         btnDay = findViewById(R.id.btn_day);
         btnWeek = findViewById(R.id.btn_week);
         btnMonth = findViewById(R.id.btn_month);

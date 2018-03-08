@@ -231,7 +231,8 @@ public class ResultActivity extends AppCompatActivity {
 
     private void testWrite(){
         //String data = "5a d5 05 12 01 01 9c 00 c0 00 00 00 8e aa";
-        byte[] bytes = new byte[]{90, -43, 5, 18, 1, -100, 0, -64, 0, 0, 0, -114, -86};
+        //String data = "90 213 05 12 01 01 9c 00 c0 00 00 00 8e aa";
+        byte[] bytes = new byte[]{90, -43, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, -86};
         mClient.write(deviceMAC, serviceUUID, writeUUID, bytes, new BleWriteResponse() {
             @Override
             public void onResponse(int code) {

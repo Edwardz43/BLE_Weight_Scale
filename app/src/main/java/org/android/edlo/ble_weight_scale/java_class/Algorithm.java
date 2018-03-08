@@ -22,4 +22,20 @@ public class Algorithm {
         long in = Math.round(((tmp_cm * 100 - ft * 3048) * 10/254 + 5)/10);
         return new String[]{""+ft, ""+in};
     }
+
+    public static double[] year_Data(){
+        return new double[]{};
+    }
+
+    public static double[] month_Data(){
+        return new double[]{};
+    }
+
+    public static double[] week_Data(){
+        return new double[]{};
+    }
+
+    public static double[] day_Data(){
+        return new double[]{};
+    }
 }

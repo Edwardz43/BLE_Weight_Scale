@@ -66,14 +66,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)
+                Manifest.permission.BLUETOOTH_ADMIN)
                 != PackageManager.PERMISSION_GRANTED ) {
             Log.i("ed43", "B");
             ActivityCompat.requestPermissions(this,
                     new String[]{
                             Manifest.permission.INTERNET,
                             Manifest.permission.BLUETOOTH,
-                            Manifest.permission.BLUETOOTH_ADMIN
+                            Manifest.permission.BLUETOOTH_ADMIN,
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
                     },
                     1);
         }else {
@@ -180,8 +182,8 @@ public class MainActivity extends AppCompatActivity {
         //test
         SharedPreferences preference = getApplicationContext().getSharedPreferences("",0);
 
-        List<UserItem> userItems = userDAO.getAll();
-        Log.d("DB_Test", new Gson().toJson(userItems));
+        //List<UserItem> userItems = userDAO.getAll();
+        //Log.d("DB_Test", new Gson().toJson(userItems));
 
         //edit_text init
         userItem = (UserItem) getIntent().getSerializableExtra("user");
